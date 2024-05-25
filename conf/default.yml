@@ -1,0 +1,6 @@
+- name: normal-no-change-point
+  distributions: [normal]
+  lengths: [20]
+  parameters:
+    - e: 0
+      v: 1
