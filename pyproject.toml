@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "cpd-datasets"
+name = "cpd_datasets"
 version = "0.1.0"
 description = "Datasets generator for Change Point Detection problem"
 authors = ["Vladimir Kutuev <vladimir.kutuev@gmail.com>"]
