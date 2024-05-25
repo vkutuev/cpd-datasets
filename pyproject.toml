@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "cpd-datasets"
+version = "0.1.0"
+description = "Datasets generator for Change Point Detection problem"
+authors = ["Vladimir Kutuev <vladimir.kutuev@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+notebook = "^7.2.0"
+numpy = "^1.26"
+scipy = "^1.13"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
