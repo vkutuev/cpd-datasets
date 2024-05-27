@@ -9,28 +9,27 @@ __license__ = "SPDX-License-Identifier: MIT"
 from io import StringIO
 from itertools import accumulate
 
+from .distributions import Distribution
+
 
 class DatasetDescription:
     """Contains dataset description:
 
     * sub-samples lengths;
-    * sub-samples distributions;
-    * sub-samples distributions parameters.
+    * sub-samples distributions.
 
     Also can represent it in AsciiDoc format.
     """
 
     _name: str
     _samples_length: list[int]
-    _samples_distributions: list[str]
-    _samples_distributions_params: list[dict[str, str]]
+    _samples_distributions: list[Distribution]
 
     def __init__(
         self,
         name: str,
         samples_length: list[int],
-        samples_distributions: list[str],
-        samples_distributions_params: list[dict[str, str]],
+        samples_distributions: list[Distribution],
     ) -> None:
         """
         Creates new DatasetDescription instance.
@@ -38,29 +37,59 @@ class DatasetDescription:
         :param name: Name for the sample.
         :param samples_length: List of sub-samples length.
         :param samples_distributions: List of sub-samples distributions.
-        :param samples_distributions_params: List of sub-samples distributions parameters.
         """
         self._name = name
         self._samples_length = samples_length
         self._samples_distributions = samples_distributions
-        self._samples_distributions_params = samples_distributions_params
-        assert len(self._samples_length) == len(self._samples_distributions) == len(self._samples_distributions_params)
+        assert len(self._samples_length) == len(self._samples_distributions)
 
     @property
     def changepoints(self) -> list[int]:
         return list(accumulate(self._samples_length))[:-1]
 
-    def __str__(self) -> str:
-        sub_samples_len = len(self._samples_length)
+    def to_asciidoc(self) -> str:
+        """
+        Converts `DatasetDescription` instance to string in AsciiDoc format.
+        This description contain information about sample length, sub-samples lengths and distributions,
+        changepoints indices in sample.
+
+        Example
+        -------
+        .. code-block::
+
+            = Sample 20-normal-0-1-20-normal-10-1
+
+            [horizontal]
+            Sample length:: 40
+            Sub-samples lengths:: [20, 20]
+            Change points:: [20]
+
+            == Distributions
+
+            . normal
+            [horizontal]
+            mean:: 0.0
+            variance:: 1.0
+            . normal
+            [horizontal]
+            mean:: 10.0
+            variance:: 1.0
+
+        :return: Dataset description string in AsciiDoc format.
+        """
         description = StringIO()
         description.write(f"= Sample {self._name}\n\n")
-        description.write(f"Sample len:: {sub_samples_len}\n")
+        description.write("[horizontal]\n")
+        description.write(f"Sample length:: {sum(self._samples_length)}\n")
+        description.write(f"Sub-samples lengths:: {self._samples_length}\n")
         description.write(f"Change points:: {self.changepoints}\n\n")
         description.write(f"== Distributions\n\n")
-        for i in range(sub_samples_len):
-            description.write(f"* {self._samples_distributions[i]}\n")
-            for k, v in self._samples_distributions_params[i].items():
-                description.write(f"** {k}:: {v}\n")
+        for i in range(len(self._samples_length)):
+            distr = self._samples_distributions[i]
+            description.write(f". {distr.name}\n")
+            description.write("[horizontal]\n")
+            for k, v in distr.params.items():
+                description.write(f"{k}:: {v}\n")
 
         return description.getvalue()
 
@@ -70,15 +99,13 @@ class DatasetDescriptionBuilder:
 
     _name: str | None
     _samples_length: list[int] | None
-    _samples_distributions: list[str] | None
-    _samples_distributions_params: list[dict[str, str]] | None
+    _samples_distributions: list[Distribution] | None
 
     def __init__(self):
         """Creates new DatasetDescriptionBuilder empty instance."""
         self._name = None
         self._samples_length = None
         self._samples_distributions = None
-        self._samples_distributions_params = None
 
     def set_name(self, name: str) -> None:
         self._name = name
@@ -86,18 +113,17 @@ class DatasetDescriptionBuilder:
     def set_samples_lengths(self, samples_lengths: list[int]) -> None:
         self._samples_length = samples_lengths
 
-    def set_samples_distributions(self, samples_distributions: list[str]) -> None:
+    def set_samples_distributions(self, samples_distributions: list[Distribution]) -> None:
         self._samples_distributions = samples_distributions
 
-    def set_samples_distributions_params(self, samples_distributions_params: list[dict[str, str]]) -> None:
-        self._samples_distributions_params = samples_distributions_params
-
     def build(self) -> DatasetDescription:
+        """
+        Validate parameters and create `DatasetDescription` instance.
+
+        :return: New `DatasetDescription` instance.
+        """
         assert self._name
         assert self._samples_length
         assert self._samples_distributions
-        assert self._samples_distributions_params
-        assert len(self._samples_length) == len(self._samples_distributions) == len(self._samples_distributions_params)
-        return DatasetDescription(
-            self._name, self._samples_length, self._samples_distributions, self._samples_distributions_params
-        )
+        assert len(self._samples_length) == len(self._samples_distributions)
+        return DatasetDescription(self._name, self._samples_length, self._samples_distributions)

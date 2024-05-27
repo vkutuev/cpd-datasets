@@ -12,6 +12,7 @@ from typing import Iterator, Final, Type
 import yaml
 
 from .dataset_description import DatasetDescription, DatasetDescriptionBuilder
+from .distributions import Distribution
 
 
 class ConfigParser:
@@ -42,8 +43,9 @@ class ConfigParser:
             db = DatasetDescriptionBuilder()
             db.set_name(descr[ConfigParser.NAME_FIELD])
             db.set_samples_lengths(descr[ConfigParser.LENGTHS_FIELD])
-            db.set_samples_distributions(descr[ConfigParser.DISTRIBUTIONS_FIELD])
-            db.set_samples_distributions_params(descr[ConfigParser.PARAMETERS_FIELD])
+            distrs = descr[ConfigParser.DISTRIBUTIONS_FIELD]
+            params = descr[ConfigParser.PARAMETERS_FIELD]
+            db.set_samples_distributions([Distribution.from_str(distr, prms) for distr, prms in zip(distrs, params)])
             descriptions.append(db.build())
         return descriptions
 
@@ -75,6 +77,11 @@ class ConfigParser:
                     f"Description #{i} size of {ConfigParser.LENGTHS_FIELD}, {ConfigParser.DISTRIBUTIONS_FIELD} and "
                     + f"{ConfigParser.PARAMETERS_FIELD} are not equal"
                 )
+            for distr, prms in zip(distributions, params):
+                try:
+                    Distribution.from_str(distr, prms)
+                except Exception as e:
+                    raise ValueError(f"Description #{i} distribution is invalid") from e
 
     @staticmethod
     def _validate_description_name(index: int, name):
