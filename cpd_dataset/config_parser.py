@@ -11,7 +11,7 @@ from typing import Iterator, Final, Type
 
 import yaml
 
-from .dataset_description import DatasetDescription, DatasetDescriptionBuilder
+from .dataset_description import SampleDescription, DatasetDescriptionBuilder
 from .distributions import Distribution
 
 
@@ -25,7 +25,7 @@ class ConfigParser:
     LENGTHS_FIELD: Final[str] = "lengths"
     PARAMETERS_FIELD: Final[str] = "parameters"
 
-    _descriptions: list[DatasetDescription]
+    _descriptions: list[SampleDescription]
 
     def __init__(self, config_path: Path):
         self.validate_config(config_path)
@@ -33,12 +33,12 @@ class ConfigParser:
             config: list[dict] = yaml.safe_load(cf)
             self._descriptions = self._parse_config(config)
 
-    def __iter__(self) -> Iterator[DatasetDescription]:
+    def __iter__(self) -> Iterator[SampleDescription]:
         return self._descriptions.__iter__()
 
     @staticmethod
-    def _parse_config(config: list[dict]) -> list[DatasetDescription]:
-        descriptions: list[DatasetDescription] = []
+    def _parse_config(config: list[dict]) -> list[SampleDescription]:
+        descriptions: list[SampleDescription] = []
         for descr in config:
             db = DatasetDescriptionBuilder()
             db.set_name(descr[ConfigParser.NAME_FIELD])

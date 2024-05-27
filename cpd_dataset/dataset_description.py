@@ -12,7 +12,7 @@ from itertools import accumulate
 from .distributions import Distribution
 
 
-class DatasetDescription:
+class SampleDescription:
     """Contains dataset description:
 
     * sub-samples lengths;
@@ -116,7 +116,7 @@ class DatasetDescriptionBuilder:
     def set_samples_distributions(self, samples_distributions: list[Distribution]) -> None:
         self._samples_distributions = samples_distributions
 
-    def build(self) -> DatasetDescription:
+    def build(self) -> SampleDescription:
         """
         Validate parameters and create `DatasetDescription` instance.
 
@@ -126,4 +126,4 @@ class DatasetDescriptionBuilder:
         assert self._samples_length
         assert self._samples_distributions
         assert len(self._samples_length) == len(self._samples_distributions)
-        return DatasetDescription(self._name, self._samples_length, self._samples_distributions)
+        return SampleDescription(self._name, self._samples_length, self._samples_distributions)
