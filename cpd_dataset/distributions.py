@@ -9,9 +9,15 @@ __license__ = "SPDX-License-Identifier: MIT"
 from enum import Enum
 from typing import Final, Protocol
 
+import scipy.stats as ss
+import numpy as np
+
 
 class Distributions(Enum):
     NORMAL = "normal"
+
+    def __str__(self):
+        return self.value
 
 
 class Distribution(Protocol):
@@ -41,7 +47,21 @@ class Distribution(Protocol):
                 return NormalDistribution.from_params(params)
 
 
-class NormalDistribution(Distribution):
+class ScipyDistribution(Protocol, Distribution):
+    """
+    Distribution supporting sample generation with SciPy methods.
+    """
+
+    def scipy_sample(self, length: int) -> np.ndarray:
+        """
+        Generate sample using SciPy.
+
+        :return: Generated sample.
+        """
+        ...
+
+
+class NormalDistribution(ScipyDistribution):
     """
     Description for the normal distribution with mean and variance parameters.
     """
@@ -58,7 +78,7 @@ class NormalDistribution(Distribution):
 
     @property
     def name(self) -> str:
-        return Distributions.NORMAL.value
+        return str(Distributions.NORMAL)
 
     @property
     def params(self) -> dict[str, str]:
@@ -66,6 +86,9 @@ class NormalDistribution(Distribution):
             NormalDistribution.MEAN_KEY: str(self.mean),
             NormalDistribution.VAR_KEY: str(self.variance),
         }
+
+    def scipy_sample(self, length: int) -> np.ndarray:
+        return ss.norm().rvs(loc=self.mean, scale=self.variance, size=length)
 
     @staticmethod
     def from_params(params: dict[str, str]) -> "NormalDistribution":
