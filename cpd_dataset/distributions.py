@@ -47,7 +47,7 @@ class Distribution(Protocol):
                 return NormalDistribution.from_params(params)
 
 
-class ScipyDistribution(Protocol, Distribution):
+class ScipyDistribution(Distribution):
     """
     Distribution supporting sample generation with SciPy methods.
     """

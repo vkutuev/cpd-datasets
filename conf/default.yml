@@ -16,5 +16,5 @@
   parameters:
     - mean: 0
       variance: 1
-    - means: 10
+    - mean: 10
       variance: 1
