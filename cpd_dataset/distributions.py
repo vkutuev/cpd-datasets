@@ -88,7 +88,7 @@ class NormalDistribution(ScipyDistribution):
         }
 
     def scipy_sample(self, length: int) -> np.ndarray:
-        return ss.norm().rvs(loc=self.mean, scale=self.variance, size=length)
+        return ss.norm.rvs(loc=self.mean, scale=self.variance, size=length)
 
     @staticmethod
     def from_params(params: dict[str, str]) -> "NormalDistribution":
