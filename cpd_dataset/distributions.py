@@ -99,4 +99,6 @@ class NormalDistribution(ScipyDistribution):
             )
         mean: float = float(params[NormalDistribution.MEAN_KEY])
         var: float = float(params[NormalDistribution.VAR_KEY])
+        if var < 0:
+            raise ValueError("Variance cannot be less than 0")
         return NormalDistribution(mean, var)
