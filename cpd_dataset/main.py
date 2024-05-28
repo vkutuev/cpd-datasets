@@ -1,3 +1,11 @@
+"""
+Module containing application main().
+"""
+
+__copyright__ = "Copyright (c) 2024 Vladimir Kutuev"
+
+__license__ = "SPDX-License-Identifier: MIT"
+
 import argparse
 from pathlib import Path
 
