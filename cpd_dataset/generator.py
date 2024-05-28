@@ -7,11 +7,20 @@ __copyright__ = "Copyright (c) 2024 Vladimir Kutuev"
 __license__ = "SPDX-License-Identifier: MIT"
 
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import TypeVar, Generic
 
 import numpy as np
 
 from .distributions import Distribution, ScipyDistribution
+
+
+class Generators(Enum):
+    SCIPY = "scipy"
+
+    def __str__(self) -> str:
+        return self.value
+
 
 DT = TypeVar("DT", bound=Distribution)
 
@@ -32,6 +41,14 @@ class DatasetGenerator(Generic[DT], ABC):
         :return: Created sample.
         """
         raise NotImplementedError()
+
+    @staticmethod
+    def get_generator(generator_backend: Generators) -> "DatasetGenerator":
+        match generator_backend:
+            case Generators.SCIPY:
+                return ScipyDatasetGenerator()
+            case _:
+                raise ValueError("Unknown generator")
 
 
 DST = TypeVar("DST", bound=ScipyDistribution)
