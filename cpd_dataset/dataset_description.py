@@ -44,10 +44,22 @@ class SampleDescription:
         assert len(self._samples_length) == len(self._samples_distributions)
 
     @property
+    def name(self) -> str:
+        return self._name
+
+    @property
     def changepoints(self) -> list[int]:
         return list(accumulate(self._samples_length))[:-1]
 
-    def to_asciidoc(self) -> str:
+    @property
+    def length(self) -> list[int]:
+        return self._samples_length
+
+    @property
+    def distributions(self) -> list[Distribution]:
+        return self._samples_distributions
+
+    def to_asciidoc(self, image_path: str | None = None) -> str:
         """
         Converts `DatasetDescription` instance to string in AsciiDoc format.
         This description contain information about sample length, sub-samples lengths and distributions,
@@ -81,7 +93,7 @@ class SampleDescription:
         description.write(f"= Sample {self._name}\n\n")
         description.write("[horizontal]\n")
         description.write(f"Sample length:: {sum(self._samples_length)}\n")
-        description.write(f"Sub-samples lengths:: {self._samples_length}\n")
+        description.write(f"Subsamples lengths:: {self._samples_length}\n")
         description.write(f"Change points:: {self.changepoints}\n\n")
         description.write(f"== Distributions\n\n")
         for i in range(len(self._samples_length)):
@@ -90,6 +102,10 @@ class SampleDescription:
             description.write("[horizontal]\n")
             for k, v in distr.params.items():
                 description.write(f"{k}:: {v}\n")
+
+        if image_path:
+            description.write("\n")
+            description.write(f"image::{image_path}[Sample]\n")
 
         return description.getvalue()
 
